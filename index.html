@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Little Stars Kindergarten - Where Learning is Fun!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <header class="header" id="header">
+    <div class="container header-inner">
+      <a href="#" class="logo">
+        <span class="logo-icon">🌟</span>
+        <span class="logo-text">Little Stars</span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#programs" class="nav-link">Programs</a>
+        <a href="#teachers" class="nav-link">Teachers</a>
+        <a href="#activities" class="nav-link">Activities</a>
+        <a href="#gallery" class="nav-link">Gallery</a>
+        <a href="#contact" class="nav-link">Contact</a>
+        <a href="login.html" class="btn btn-login">Parent Login</a>
+      </nav>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">
+        <span class="hamburger"></span>
+      </button>
+    </div>
+  </header>
+
+  <section class="hero" id="home">
+    <div class="hero-shapes">
+      <div class="shape shape-circle shape-1"></div>
+      <div class="shape shape-star shape-2">⭐</div>
+      <div class="shape shape-circle shape-3"></div>
+      <div class="shape shape-star shape-4">🌈</div>
+      <div class="shape shape-circle shape-5"></div>
+    </div>
+    <div class="container hero-content">
+      <div class="hero-text">
+        <h1 class="hero-title">Where Every Child is a <span class="gradient-text">Shining Star</span></h1>
+        <p class="hero-desc">Nurturing young minds through play-based learning, creativity, and exploration in a safe, loving environment.</p>
+        <div class="hero-buttons">
+          <a href="#programs" class="btn btn-primary btn-lg">Explore Programs</a>
+          <a href="#contact" class="btn btn-outline btn-lg">Get in Touch</a>
+        </div>
+      </div>
+      <div class="hero-illustration">
+        <svg viewBox="0 0 400 400" class="hero-svg">
+          <circle cx="200" cy="180" r="120" fill="#FFD93D" opacity="0.3"/>
+          <circle cx="200" cy="180" r="90" fill="#FFA94D" opacity="0.3"/>
+          <rect x="130" y="220" width="140" height="100" rx="10" fill="#4D96FF" opacity="0.8"/>
+          <rect x="120" y="210" width="160" height="20" rx="10" fill="#FF6B6B"/>
+          <rect x="155" y="160" width="90" height="70" rx="5" fill="#FFD93D"/>
+          <circle cx="175" cy="150" r="12" fill="#FF6B9D"/>
+          <circle cx="225" cy="150" r="12" fill="#6BCB77"/>
+          <circle cx="200" cy="135" r="12" fill="#4D96FF"/>
+          <text x="200" y="280" text-anchor="middle" font-size="40" fill="white" font-family="Nunito">🎓</text>
+        </svg>
+      </div>
+    </div>
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+        <path d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,30 1440,60 L1440,120 L0,120Z" fill="var(--color-white)"/>
+      </svg>
+    </div>
+  </section>
+
+  <section class="about section" id="about">
+    <div class="container about-inner">
+      <div class="about-image reveal">
+        <svg viewBox="0 0 300 300" class="about-svg">
+          <circle cx="150" cy="150" r="140" fill="#4D96FF" opacity="0.1"/>
+          <circle cx="150" cy="120" r="40" fill="#FFD93D"/>
+          <rect x="120" y="160" width="60" height="80" rx="10" fill="#FF6B9D"/>
+          <circle cx="100" cy="140" r="25" fill="#6BCB77"/>
+          <circle cx="200" cy="140" r="25" fill="#FFA94D"/>
+          <circle cx="80" cy="200" r="20" fill="#9B59B6"/>
+          <circle cx="220" cy="200" r="20" fill="#FF6B6B"/>
+          <text x="150" y="290" text-anchor="middle" font-size="24" fill="var(--color-dark)">❤️ Learning Together</text>
+        </svg>
+      </div>
+      <div class="about-text reveal">
+        <h2 class="section-title">About Our <span class="text-blue">Kindergarten</span></h2>
+        <p class="about-desc">Little Stars Kindergarten has been providing exceptional early childhood education since 2015. We believe every child is unique and deserves a nurturing environment to grow, learn, and shine.</p>
+        <div class="about-values">
+          <div class="value-card">
+            <span class="value-icon">🎯</span>
+            <h4>Play-Based Learning</h4>
+            <p>Learning through play and exploration</p>
+          </div>
+          <div class="value-card">
+            <span class="value-icon">❤️</span>
+            <h4>Safe Environment</h4>
+            <p>A warm, caring atmosphere for all</p>
+          </div>
+          <div class="value-card">
+            <span class="value-icon">🌱</span>
+            <h4>Holistic Growth</h4>
+            <p>Developing mind, body, and character</p>
+          </div>
+          <div class="value-card">
+            <span class="value-icon">👨‍👩‍👧</span>
+            <h4>Family Partnership</h4>
+            <p>Working closely with parents</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="programs section section-light" id="programs">
+    <div class="container">
+      <h2 class="section-title text-center">Our <span class="text-blue">Programs</span></h2>
+      <p class="section-subtitle">Age-appropriate programs designed to spark curiosity and build foundations</p>
+      <div class="programs-grid">
+        <div class="program-card reveal">
+          <div class="program-icon">👶</div>
+          <h3>Nursery</h3>
+          <p class="program-age">Ages 2-3</p>
+          <p> gentle introduction to structured learning through sensory play, music, and social interaction.</p>
+          <ul class="program-features">
+            <li>Sensory Activities</li>
+            <li>Music & Movement</li>
+            <li>Story Time</li>
+          </ul>
+        </div>
+        <div class="program-card featured reveal">
+          <div class="program-badge">Most Popular</div>
+          <div class="program-icon">🌸</div>
+          <h3>KG1 - Foundation</h3>
+          <p class="program-age">Ages 3-4</p>
+          <p>Building foundations in literacy, numeracy, and social skills through engaging activities.</p>
+          <ul class="program-features">
+            <li>Early Literacy</li>
+            <li>Number Concepts</li>
+            <li>Creative Arts</li>
+            <li>Social Skills</li>
+          </ul>
+        </div>
+        <div class="program-card reveal">
+          <div class="program-icon">🌈</div>
+          <h3>KG2 - Exploration</h3>
+          <p class="program-age">Ages 4-5</p>
+          <p>Expanding horizons with science, reading, writing, and creative expression.</p>
+          <ul class="program-features">
+            <li>Reading & Writing</li>
+            <li>Science Discovery</li>
+            <li>Art Projects</li>
+          </ul>
+        </div>
+        <div class="program-card reveal">
+          <div class="program-icon">🚀</div>
+          <h3>KG3 - Preparation</h3>
+          <p class="program-age">Ages 5-6</p>
+          <p>Preparing for primary school with advanced skills and confidence building.</p>
+          <ul class="program-features">
+            <li>Advanced Phonics</li>
+            <li>Math Concepts</li>
+            <li>Leadership Skills</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="teachers section" id="teachers">
+    <div class="container">
+      <h2 class="section-title text-center">Meet Our <span class="text-pink">Teachers</span></h2>
+      <p class="section-subtitle">Passionate educators dedicated to your child's growth</p>
+      <div class="teachers-grid">
+        <div class="teacher-card reveal">
+          <div class="teacher-photo" style="background: var(--color-pink);">
+            <span class="teacher-initial">S</span>
+          </div>
+          <div class="teacher-info">
+            <h4>Sarah Johnson</h4>
+            <p class="teacher-role">KG1 Lead Teacher</p>
+            <p class="teacher-bio">10+ years in early childhood education. Certified in Montessori methods.</p>
+          </div>
+        </div>
+        <div class="teacher-card reveal">
+          <div class="teacher-photo" style="background: var(--color-blue);">
+            <span class="teacher-initial">M</span>
+          </div>
+          <div class="teacher-info">
+            <h4>Michael Chen</h4>
+            <p class="teacher-role">KG2 Lead Teacher</p>
+            <p class="teacher-bio">Specializes in STEM education for young learners. Former science teacher.</p>
+          </div>
+        </div>
+        <div class="teacher-card reveal">
+          <div class="teacher-photo" style="background: var(--color-green);">
+            <span class="teacher-initial">E</span>
+          </div>
+          <div class="teacher-info">
+            <h4>Emily Davis</h4>
+            <p class="teacher-role">KG3 Lead Teacher</p>
+            <p class="teacher-bio">Expert in school readiness programs. Passionate about literacy.</p>
+          </div>
+        </div>
+        <div class="teacher-card reveal">
+          <div class="teacher-photo" style="background: var(--color-orange);">
+            <span class="teacher-initial">R</span>
+          </div>
+          <div class="teacher-info">
+            <h4>Rachel Kim</h4>
+            <p class="teacher-role">Arts & Music Teacher</p>
+            <p class="teacher-bio">Brings creativity to every classroom. Trained in art therapy.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="activities section section-light" id="activities">
+    <div class="container">
+      <h2 class="section-title text-center">Fun <span class="text-orange">Activities</span></h2>
+      <p class="section-subtitle">Learning goes beyond the classroom</p>
+      <div class="activities-grid">
+        <div class="activity-card reveal" style="--card-color: var(--color-red);">
+          <div class="activity-icon">🎨</div>
+          <h4>Art & Craft</h4>
+          <p>Express creativity through painting, drawing, and crafting projects.</p>
+        </div>
+        <div class="activity-card reveal" style="--card-color: var(--color-blue);">
+          <div class="activity-icon">🎵</div>
+          <h4>Music & Dance</h4>
+          <p>Learn rhythms, sing songs, and express through movement.</p>
+        </div>
+        <div class="activity-card reveal" style="--card-color: var(--color-green);">
+          <div class="activity-icon">⚽</div>
+          <h4>Sports & Play</h4>
+          <p>Develop motor skills through structured and free play activities.</p>
+        </div>
+        <div class="activity-card reveal" style="--card-color: var(--color-purple);">
+          <div class="activity-icon">🔬</div>
+          <h4>STEM Discovery</h4>
+          <p>Explore science, technology, engineering, and math through fun experiments.</p>
+        </div>
+        <div class="activity-card reveal" style="--card-color: var(--color-orange);">
+          <div class="activity-icon">📖</div>
+          <h4>Story Time</h4>
+          <p>Develop language skills through storytelling and reading adventures.</p>
+        </div>
+        <div class="activity-card reveal" style="--card-color: var(--color-pink);">
+          <div class="activity-icon">🌳</div>
+          <h4>Outdoor Learning</h4>
+          <p>Explore nature, garden, and learn in the great outdoors.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="gallery section" id="gallery">
+    <div class="container">
+      <h2 class="section-title text-center">Our <span class="text-purple">Gallery</span></h2>
+      <p class="section-subtitle">Moments of joy and learning</p>
+      <div class="gallery-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="classroom">Classroom</button>
+        <button class="filter-btn" data-filter="activities">Activities</button>
+        <button class="filter-btn" data-filter="events">Events</button>
+      </div>
+      <div class="gallery-grid" id="gallery-grid">
+        <div class="gallery-item reveal" data-category="classroom">
+          <div class="gallery-placeholder" style="background: linear-gradient(135deg, var(--color-blue), var(--color-purple));">
+            <span>🏫</span><p>Classroom Fun</p>
+          </div>
+        </div>
+        <div class="gallery-item reveal" data-category="activities">
+          <div class="gallery-placeholder" style="background: linear-gradient(135deg, var(--color-red), var(--color-orange));">
+            <span>🎨</span><p>Art Time</p>
+          </div>
+        </div>
+        <div class="gallery-item reveal" data-category="events">
+          <div class="gallery-placeholder" style="background: linear-gradient(135deg, var(--color-green), var(--color-blue));">
+            <span>🎉</span><p>School Festival</p>
+          </div>
+        </div>
+        <div class="gallery-item reveal" data-category="classroom">
+          <div class="gallery-placeholder" style="background: linear-gradient(135deg, var(--color-yellow), var(--color-orange));">
+            <span>📚</span><p>Reading Corner</p>
+          </div>
+        </div>
+        <div class="gallery-item reveal" data-category="activities">
+          <div class="gallery-placeholder" style="background: linear-gradient(135deg, var(--color-purple), var(--color-pink));">
+            <span>🎵</span><p>Music Class</p>
+          </div>
+        </div>
+        <div class="gallery-item reveal" data-category="events">
+          <div class="gallery-placeholder" style="background: linear-gradient(135deg, var(--color-pink), var(--color-red));">
+            <span>🎄</span><p>Holiday Celebration</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact section section-light" id="contact">
+    <div class="container contact-inner">
+      <div class="contact-info reveal">
+        <h2 class="section-title">Get in <span class="text-green">Touch</span></h2>
+        <p>We'd love to hear from you. Visit us or send a message!</p>
+        <div class="contact-details">
+          <div class="contact-item">
+            <span class="contact-icon">📍</span>
+            <div>
+              <h4>Address</h4>
+              <p>123 Sunshine Avenue, Education City, EC 12345</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">📞</span>
+            <div>
+              <h4>Phone</h4>
+              <p>+1 (555) 123-4567</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">✉️</span>
+            <div>
+              <h4>Email</h4>
+              <p>info@littlestars.edu</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">🕐</span>
+            <div>
+              <h4>Hours</h4>
+              <p>Mon-Fri: 7:30 AM - 3:30 PM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form-wrapper reveal">
+        <form id="contact-form" class="contact-form" novalidate>
+          <div class="form-group">
+            <label for="contact-name">Full Name <span class="required">*</span></label>
+            <input type="text" id="contact-name" name="name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="contact-email">Email <span class="required">*</span></label>
+            <input type="email" id="contact-email" name="email" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="contact-phone">Phone</label>
+            <input type="tel" id="contact-phone" name="phone" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="contact-subject">Subject <span class="required">*</span></label>
+            <select id="contact-subject" name="subject" class="form-control" required>
+              <option value="">Select a subject</option>
+              <option value="admissions">Admissions Inquiry</option>
+              <option value="general">General Information</option>
+              <option value="tour">Schedule a Tour</option>
+              <option value="feedback">Feedback</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="contact-message">Message <span class="required">*</span></label>
+            <textarea id="contact-message" name="message" class="form-control" rows="5" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg btn-block">Send Message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer" id="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <div class="logo footer-logo">
+          <span class="logo-icon">🌟</span>
+          <span class="logo-text">Little Stars</span>
+        </div>
+        <p>Nurturing young minds since 2015. Where every child is a shining star.</p>
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="Facebook">📘</a>
+          <a href="#" class="social-link" aria-label="Instagram">📸</a>
+          <a href="#" class="social-link" aria-label="Twitter">🐦</a>
+          <a href="#" class="social-link" aria-label="YouTube">📺</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#programs">Programs</a></li>
+          <li><a href="#teachers">Teachers</a></li>
+          <li><a href="#gallery">Gallery</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Programs</h4>
+        <ul>
+          <li><a href="#programs">Nursery (Ages 2-3)</a></li>
+          <li><a href="#programs">KG1 Foundation</a></li>
+          <li><a href="#programs">KG2 Exploration</a></li>
+          <li><a href="#programs">KG3 Preparation</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact Info</h4>
+        <ul>
+          <li>📍 123 Sunshine Avenue</li>
+          <li>📞 +1 (555) 123-4567</li>
+          <li>✉️ info@littlestars.edu</li>
+          <li>🕐 Mon-Fri: 7:30 AM - 3:30 PM</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        <p>&copy; 2026 Little Stars Kindergarten. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <div id="lightbox" class="lightbox hidden"></div>
+
+  <script src="js/website/main.js" type="module"></script>
+</body>
+</html>

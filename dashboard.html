@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Little Stars Kindergarten</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main">
+      <header class="dashboard-header">
+        <div class="header-left">
+          <button id="menu-toggle">☰</button>
+          <h1 class="header-title" id="page-title">Dashboard</h1>
+        </div>
+        <div class="header-right">
+          <button class="notification-btn" id="notif-btn" title="Notifications">
+            🔔<span class="notification-badge" id="notif-count" style="display:none;">0</span>
+          </button>
+          <div class="user-menu" id="user-menu">
+            <div class="user-avatar-sm" id="user-avatar"></div>
+            <span id="user-name-display"></span>
+          </div>
+        </div>
+      </header>
+      <div id="main-content"></div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { supabase } from './js/config.js';
+    import { setState, getState } from './js/state.js';
+    import { initDashboard, sidebarConfig } from './js/app.js';
+    import { registerRoute, initRouter, navigate } from './js/router.js';
+    import { showToast } from './js/components/toast.js';
+
+    // Load profile from session
+    const profile = JSON.parse(sessionStorage.getItem('profile') || 'null');
+    if (!profile) {
+      window.location.href = 'login.html';
+    } else {
+      setState('profile', profile);
+      setState('role', profile.role);
+      setState('user', profile.id);
+      initDashboard();
+      document.getElementById('user-avatar').textContent = profile.full_name ? profile.full_name[0].toUpperCase() : '?';
+      document.getElementById('user-name-display').textContent = profile.full_name || '';
+
+      // Register role-specific routes
+      const role = profile.role;
+      const moduleRoutes = {
+        admin: () => import('./js/pages/admin/dashboard.js'),
+        supervisor: () => import('./js/pages/supervisor/dashboard.js'),
+        teacher: () => import('./js/pages/teacher/dashboard.js'),
+        parent: () => import('./js/pages/parent/dashboard.js')
+      };
+
+      // Load role dashboard module
+      if (moduleRoutes[role]) {
+        moduleRoutes[role]().then(mod => {
+          if (mod.registerRoutes) mod.registerRoutes();
+          initRouter();
+        }).catch(() => {
+          // Fallback: show simple dashboard
+          document.getElementById('main-content').innerHTML = `
+            <div class="dashboard-grid">
+              <div class="stat-card"><div class="stat-icon" style="background:rgba(77,150,255,0.1);color:var(--color-blue);">📊</div><div><div class="stat-value">Welcome</div><div class="stat-label">Logged in as ${role}</div></div></div>
+            </div>`;
+          initRouter();
+        });
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Little Stars Kindergarten</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #FFF5F5, #EBF4FF, #F0FFF4); }
+    .login-container { width: 100%; max-width: 420px; padding: 20px; }
+    .login-card { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 40px; }
+    .login-logo { text-align: center; margin-bottom: 30px; }
+    .login-logo .logo-icon { font-size: 3rem; }
+    .login-title { font-family: var(--font-heading); font-size: 1.5rem; text-align: center; margin-top: 8px; }
+    .login-subtitle { text-align: center; color: var(--color-gray); margin-bottom: 24px; font-size: 0.9rem; }
+    .login-form .form-group { margin-bottom: 20px; }
+    .login-form label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
+    .login-form .form-control { width: 100%; padding: 12px 16px; border: 2px solid #E0E0E0; border-radius: var(--radius-sm); font-size: 1rem; transition: var(--transition); }
+    .login-form .form-control:focus { outline: none; border-color: var(--color-blue); box-shadow: 0 0 0 3px rgba(77,150,255,0.15); }
+    .login-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--color-blue), var(--color-purple)); color: white; border: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 700; cursor: pointer; transition: var(--transition); }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .login-error { background: #FFF0F0; color: var(--color-red); padding: 10px 16px; border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 0.9rem; display: none; }
+    .login-footer { text-align: center; margin-top: 20px; }
+    .login-footer a { color: var(--color-blue); font-weight: 600; }
+    .home-link { text-align: center; margin-top: 20px; }
+    .home-link a { color: var(--color-gray); font-size: 0.9rem; }
+    .home-link a:hover { color: var(--color-blue); }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-icon">🌟</div>
+        <div class="login-title">Little Stars</div>
+        <div class="login-subtitle">School Management System</div>
+      </div>
+      <div class="login-error" id="login-error"></div>
+      <form class="login-form" id="login-form">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" class="login-btn" id="login-btn">Sign In</button>
+      </form>
+      <div class="home-link">
+        <a href="index.html">← Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { supabase } from './js/config.js';
+
+    const form = document.getElementById('login-form');
+    const errorDiv = document.getElementById('login-error');
+    const loginBtn = document.getElementById('login-btn');
+
+    // Check existing session
+    if (supabase) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+        if (profile) {
+          const routes = { admin: '#/admin/dashboard', supervisor: '#/supervisor/dashboard', teacher: '#/teacher/dashboard', parent: '#/parent/dashboard' };
+          window.location.href = 'dashboard.html' + (routes[profile.role] || '');
+        }
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorDiv.style.display = 'none';
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Signing in...';
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      if (!supabase) {
+        // Demo mode - simulate login
+        const demoUsers = {
+          'admin@kindergarten.com': { role: 'admin', full_name: 'Admin User' },
+          'supervisor@kindergarten.com': { role: 'supervisor', full_name: 'Jane Supervisor' },
+          'teacher1@kindergarten.com': { role: 'teacher', full_name: 'Sarah Johnson' },
+          'teacher2@kindergarten.com': { role: 'teacher', full_name: 'Michael Chen' },
+          'parent1@kindergarten.com': { role: 'parent', full_name: 'John Smith' },
+          'parent2@kindergarten.com': { role: 'parent', full_name: 'Maria Garcia' }
+        };
+        const user = demoUsers[email];
+        if (user && password) {
+          sessionStorage.setItem('profile', JSON.stringify({ id: 'demo-' + email.split('@')[0], email, ...user }));
+          window.location.href = 'dashboard.html#/' + user.role + '/dashboard';
+          return;
+        }
+        errorDiv.textContent = 'Configure Supabase credentials in config.js, or use demo credentials shown below.';
+        errorDiv.style.display = 'block';
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign In';
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.style.display = 'block';
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign In';
+        return;
+      }
+
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+      if (profile) {
+        sessionStorage.setItem('profile', JSON.stringify(profile));
+        const routes = { admin: '#/admin/dashboard', supervisor: '#/supervisor/dashboard', teacher: '#/teacher/dashboard', parent: '#/parent/dashboard' };
+        window.location.href = 'dashboard.html' + (routes[profile.role] || '');
+      }
+    });
+  </script>
+</body>
+</html>

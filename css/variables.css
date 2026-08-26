@@ -1,0 +1,31 @@
+:root {
+  --color-red: #FF6B6B;
+  --color-orange: #FFA94D;
+  --color-yellow: #FFD93D;
+  --color-green: #6BCB77;
+  --color-blue: #4D96FF;
+  --color-purple: #9B59B6;
+  --color-pink: #FF6B9D;
+  --color-white: #FFFFFF;
+  --color-light: #F8F9FA;
+  --color-gray: #6C757D;
+  --color-dark: #2C3E50;
+  --color-darker: #1A252F;
+  --font-primary: 'Nunito', sans-serif;
+  --font-heading: 'Fredoka One', cursive;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.16);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 50%;
+  --transition: all 0.3s ease;
+  --container-max: 1200px;
+  --header-height: 70px;
+}
+@media (max-width: 768px) {
+  :root {
+    --header-height: 60px;
+  }
+}

@@ -10,9 +10,11 @@ export async function signIn(email, password) {
 }
 
 export async function signOut() {
-  if (!supabase) return;
-  await supabase.auth.signOut();
+  if (supabase) {
+    await supabase.auth.signOut();
+  }
   clearState();
+  sessionStorage.removeItem('profile');
   window.location.href = 'login.html';
 }
 

@@ -8,7 +8,7 @@ export function registerRoutes() {
   registerRoute('/parent/homework', renderHomework);
   registerRoute('/parent/results', renderResults);
   registerRoute('/parent/feedback', renderFeedback);
-  registerRoute('/parent/calendar', renderCalendar);
+  registerRoute('/parent/calendar', renderCalendarView);
 }
 
 function renderParentDashboard(container) {
@@ -192,7 +192,7 @@ function renderFeedback(container) {
     </div>`).join('');
 }
 
-function renderCalendar(container) {
+function renderCalendarView(container) {
   document.getElementById('page-title').textContent = 'Calendar';
   container.innerHTML = `
     <div class="card">

@@ -9,7 +9,7 @@ export function registerRoutes() {
   registerRoute('/supervisor/submissions', renderSubmissions);
   registerRoute('/supervisor/escalations', renderEscalations);
   registerRoute('/supervisor/reports', renderReports);
-  registerRoute('/supervisor/calendar', renderCalendar);
+  registerRoute('/supervisor/calendar', renderCalendarView);
 }
 
 function renderSupervisorDashboard(container) {
@@ -200,7 +200,7 @@ function renderReports(container) {
     </div>`;
 }
 
-function renderCalendar(container) {
+function renderCalendarView(container) {
   document.getElementById('page-title').textContent = 'Calendar';
   container.innerHTML = `<div class="card"><div class="card-body" id="sup-calendar"></div></div>`;
   import('../../components/calendar.js').then(({ renderCalendar }) => {

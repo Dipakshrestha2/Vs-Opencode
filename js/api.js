@@ -15,6 +15,7 @@ async function auditLog(action, tableName, recordId, oldData, newData) {
 }
 
 export async function fetchAll(table, filters = {}, select = '*') {
+  if (!supabase) return { error: { message: 'Demo Mode: Supabase not configured' } };
   let query = supabase.from(table).select(select);
   Object.entries(filters).forEach(([key, val]) => {
     if (val !== undefined && val !== null && val !== '') query = query.eq(key, val);
@@ -24,17 +25,20 @@ export async function fetchAll(table, filters = {}, select = '*') {
 }
 
 export async function fetchOne(table, id, select = '*') {
+  if (!supabase) return { error: { message: 'Demo Mode: Supabase not configured' } };
   const { data, error } = await supabase.from(table).select(select).eq('id', id).single();
   return error ? { error } : { data };
 }
 
 export async function insertRecord(table, record) {
+  if (!supabase) return { error: { message: 'Demo Mode: Supabase not configured' } };
   const { data, error } = await supabase.from(table).insert(record).select().single();
   if (!error) await auditLog('INSERT', table, data.id, null, record);
   return error ? { error } : { data };
 }
 
 export async function updateRecord(table, id, updates) {
+  if (!supabase) return { error: { message: 'Demo Mode: Supabase not configured' } };
   const old = await fetchOne(table, id);
   const { data, error } = await supabase.from(table).update(updates).eq('id', id).select().single();
   if (!error) await auditLog('UPDATE', table, id, old.data, updates);
@@ -42,6 +46,7 @@ export async function updateRecord(table, id, updates) {
 }
 
 export async function deleteRecord(table, id) {
+  if (!supabase) return { error: { message: 'Demo Mode: Supabase not configured' } };
   const old = await fetchOne(table, id);
   const { error } = await supabase.from(table).delete().eq('id', id);
   if (!error) await auditLog('DELETE', table, id, old.data, null);
@@ -49,6 +54,7 @@ export async function deleteRecord(table, id) {
 }
 
 export async function fetchWithJoin(table, filters = {}, select = '*', joins = '') {
+  if (!supabase) return { error: { message: 'Demo Mode: Supabase not configured' } };
   let query = supabase.from(table).select(joins ? `${select}, ${joins}` : select);
   Object.entries(filters).forEach(([key, val]) => {
     if (val !== undefined && val !== null && val !== '') query = query.eq(key, val);

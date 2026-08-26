@@ -9,7 +9,7 @@ export function registerRoutes() {
   registerRoute('/teacher/exams', renderExams);
   registerRoute('/teacher/tasks', renderTasks);
   registerRoute('/teacher/feedback', renderFeedback);
-  registerRoute('/teacher/calendar', renderCalendar);
+  registerRoute('/teacher/calendar', renderCalendarView);
 }
 
 function renderTeacherDashboard(container) {
@@ -256,7 +256,7 @@ function renderFeedback(container) {
   document.getElementById('send-feedback-btn')?.addEventListener('click', () => showToast('Send feedback form coming soon', 'info'));
 }
 
-function renderCalendar(container) {
+function renderCalendarView(container) {
   document.getElementById('page-title').textContent = 'Calendar';
   container.innerHTML = `<div class="card"><div class="card-body" id="teacher-calendar"></div></div>`;
   import('../../components/calendar.js').then(({ renderCalendar }) => {

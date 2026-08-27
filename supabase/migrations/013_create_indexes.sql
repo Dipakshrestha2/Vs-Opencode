@@ -2,14 +2,14 @@
 CREATE INDEX idx_profiles_role ON profiles(role);
 CREATE INDEX idx_profiles_email ON profiles(email);
 CREATE INDEX idx_teachers_profile_id ON teachers(profile_id);
-CREATE INDEX idx_supervisors_profile_id ON supervisors(profile_id);
+CREATE INDEX idx_head_teachers_profile_id ON head_teachers(profile_id);
 CREATE INDEX idx_parents_profile_id ON parents(profile_id);
 CREATE INDEX idx_students_class_section ON students(class_id, section_id);
 CREATE INDEX idx_parent_students_parent ON parent_students(parent_id);
 CREATE INDEX idx_parent_students_student ON parent_students(student_id);
 CREATE INDEX idx_teacher_classes_teacher ON teacher_classes(teacher_id);
 CREATE INDEX idx_teacher_classes_class ON teacher_classes(class_id);
-CREATE INDEX idx_supervisor_teachers_supervisor ON supervisor_teachers(supervisor_id);
+CREATE INDEX idx_head_teacher_teachers_head_teacher ON head_teacher_teachers(head_teacher_id);
 CREATE INDEX idx_attendance_class_date ON attendance(class_id, section_id, date);
 CREATE INDEX idx_attendance_records_attendance ON attendance_records(attendance_id);
 CREATE INDEX idx_attendance_records_student ON attendance_records(student_id);

@@ -70,7 +70,7 @@ async function renderUsers(container) {
     // Demo Mode Fallback
     users = [
       { id: '1', full_name: 'Admin User', role: 'admin', is_active: true },
-      { id: '2', full_name: 'Jane Supervisor', role: 'supervisor', is_active: true },
+      { id: '2', full_name: 'Jane Head Teacher', role: 'head_teacher', is_active: true },
       { id: '3', full_name: 'Sarah Johnson', role: 'teacher', is_active: true },
       { id: '4', full_name: 'Michael Chen', role: 'teacher', is_active: true },
       { id: '5', full_name: 'John Smith', role: 'parent', is_active: true },
@@ -83,7 +83,7 @@ async function renderUsers(container) {
       container: document.getElementById('users-table'),
       columns: [
         { key: 'full_name', label: 'Name' },
-        { key: 'role', label: 'Role', render: (v) => `<span class="badge status-${v === 'admin' ? 'approved' : v === 'supervisor' ? 'under_review' : v === 'teacher' ? 'in_progress' : 'assigned'}">${v}</span>` },
+        { key: 'role', label: 'Role', render: (v) => `<span class="badge status-${v === 'admin' ? 'approved' : v === 'head_teacher' ? 'under_review' : v === 'teacher' ? 'in_progress' : 'assigned'}">${v}</span>` },
         { key: 'is_active', label: 'Status', render: (v) => `<span class="badge ${v ? 'status-present' : 'status-absent'}">${v ? 'Active' : 'Inactive'}</span>` }
       ],
       data: users || [],
@@ -108,7 +108,7 @@ async function renderUsers(container) {
         { key: 'full_name', label: 'Full Name', required: true },
         { key: 'role', label: 'Role', type: 'select', required: true, options: [
           { value: 'admin', label: 'Admin' },
-          { value: 'supervisor', label: 'Supervisor' },
+          { value: 'head_teacher', label: 'Head Teacher' },
           { value: 'teacher', label: 'Teacher' },
           { value: 'parent', label: 'Parent' }
         ]},
@@ -312,7 +312,7 @@ function renderSettings(container) {
         <div class="card-header"><h3>Escalation Rules</h3></div>
         <div class="card-body">
           <div class="form-group"><label>Escalation Period (days)</label><input type="number" class="form-control" value="5" id="escalation-days"></div>
-          <p style="color:var(--color-gray);font-size:0.85rem;margin-bottom:16px;">Tasks/feedback overdue by this many days will be escalated to the supervisor.</p>
+          <p style="color:var(--color-gray);font-size:0.85rem;margin-bottom:16px;">Tasks/feedback overdue by this many days will be escalated to the head_teacher.</p>
           <div class="form-group"><label>Reminder Frequency (days)</label><input type="number" class="form-control" value="1"></div>
           <button class="btn btn-primary" onclick="alert('Settings saved!')">Save Settings</button>
         </div>

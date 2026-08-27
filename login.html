@@ -72,7 +72,7 @@
       if (session) {
         const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
         if (profile) {
-          const routes = { admin: '#/admin/dashboard', supervisor: '#/supervisor/dashboard', teacher: '#/teacher/dashboard', parent: '#/parent/dashboard' };
+          const routes = { admin: '#/admin/dashboard', head_teacher: '#/head_teacher/dashboard', teacher: '#/teacher/dashboard', parent: '#/parent/dashboard' };
           window.location.href = 'dashboard.html' + (routes[profile.role] || '');
         }
       }
@@ -91,7 +91,7 @@
         // Demo mode - simulate login
         const demoUsers = {
           'admin@kindergarten.com': { role: 'admin', full_name: 'Admin User' },
-          'supervisor@kindergarten.com': { role: 'supervisor', full_name: 'Jane Supervisor' },
+          'head_teacher@kindergarten.com': { role: 'head_teacher', full_name: 'Jane Head Teacher' },
           'teacher1@kindergarten.com': { role: 'teacher', full_name: 'Sarah Johnson' },
           'teacher2@kindergarten.com': { role: 'teacher', full_name: 'Michael Chen' },
           'parent1@kindergarten.com': { role: 'parent', full_name: 'John Smith' },
@@ -122,7 +122,7 @@
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
       if (profile) {
         sessionStorage.setItem('profile', JSON.stringify(profile));
-        const routes = { admin: '#/admin/dashboard', supervisor: '#/supervisor/dashboard', teacher: '#/teacher/dashboard', parent: '#/parent/dashboard' };
+        const routes = { admin: '#/admin/dashboard', head_teacher: '#/head_teacher/dashboard', teacher: '#/teacher/dashboard', parent: '#/parent/dashboard' };
         window.location.href = 'dashboard.html' + (routes[profile.role] || '');
       }
     });

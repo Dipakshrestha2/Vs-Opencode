@@ -52,7 +52,7 @@ export function requireAuth(allowedRoles = []) {
 export function redirectByRole(role) {
   const routes = {
     admin: '#/admin/dashboard',
-    supervisor: '#/supervisor/dashboard',
+    head_teacher: '#/head_teacher/dashboard',
     teacher: '#/teacher/dashboard',
     parent: '#/parent/dashboard'
   };

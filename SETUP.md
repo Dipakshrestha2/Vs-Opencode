@@ -38,7 +38,7 @@ const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
    - `002_create_enums.sql`
    - `003_create_profiles.sql`
    - `004_create_school_structure.sql`
-   - `005_create_teachers_supervisors.sql`
+   - `005_create_teachers_head_teachers.sql`
    - `006_create_students_parents.sql`
    - `007_create_academic_records.sql`
    - `008_create_tasks_feedback.sql`
@@ -62,7 +62,7 @@ In the Supabase Dashboard → Authentication → Users, create:
 | Email | Password | Role |
 |-------|----------|------|
 | admin@kindergarten.com | admin123 | admin |
-| supervisor@kindergarten.com | super123 | supervisor |
+| head_teacher@kindergarten.com | super123 | head_teacher |
 | teacher1@kindergarten.com | teach123 | teacher |
 | teacher2@kindergarten.com | teach123 | teacher |
 | parent1@kindergarten.com | parent123 | parent |
@@ -75,7 +75,7 @@ In the Supabase Dashboard → Authentication → Users, create:
 
 For each user type:
 - Admin: `{"full_name": "Admin User", "role": "admin"}`
-- Supervisor: `{"full_name": "Jane Supervisor", "role": "supervisor"}`
+- Head Teacher: `{"full_name": "Jane Head Teacher", "role": "head_teacher"}`
 - Teacher 1: `{"full_name": "Sarah Johnson", "role": "teacher"}`
 - Teacher 2: `{"full_name": "Michael Chen", "role": "teacher"}`
 - Parent 1: `{"full_name": "John Smith", "role": "parent"}`
@@ -150,6 +150,6 @@ If Supabase is not configured, the app runs in demo mode with simulated data. Us
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | admin@kindergarten.com | admin123 |
-| Supervisor | supervisor@kindergarten.com | super123 |
+| Head Teacher | head_teacher@kindergarten.com | super123 |
 | Teacher | teacher1@kindergarten.com | teach123 |
 | Parent | parent1@kindergarten.com | parent123 |

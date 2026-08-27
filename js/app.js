@@ -16,15 +16,15 @@ const sidebarConfig = {
     { icon: '⚙️', label: 'Settings', route: '#/admin/settings' },
     { icon: '📋', label: 'Audit Log', route: '#/admin/audit-log' }
   ],
-  supervisor: [
-    { icon: '📊', label: 'Dashboard', route: '#/supervisor/dashboard' },
-    { icon: '👩‍🏫', label: 'Teachers', route: '#/supervisor/teachers' },
-    { icon: '👁️', label: 'Monitor', route: '#/supervisor/monitor' },
-    { icon: '📝', label: 'Tasks', route: '#/supervisor/tasks' },
-    { icon: '📤', label: 'Submissions', route: '#/supervisor/submissions' },
-    { icon: '⚠️', label: 'Escalations', route: '#/supervisor/escalations' },
-    { icon: '📈', label: 'Reports', route: '#/supervisor/reports' },
-    { icon: '📅', label: 'Calendar', route: '#/supervisor/calendar' }
+  head_teacher: [
+    { icon: '📊', label: 'Dashboard', route: '#/head_teacher/dashboard' },
+    { icon: '👩‍🏫', label: 'Teachers', route: '#/head_teacher/teachers' },
+    { icon: '👁️', label: 'Monitor', route: '#/head_teacher/monitor' },
+    { icon: '📝', label: 'Tasks', route: '#/head_teacher/tasks' },
+    { icon: '📤', label: 'Submissions', route: '#/head_teacher/submissions' },
+    { icon: '⚠️', label: 'Escalations', route: '#/head_teacher/escalations' },
+    { icon: '📈', label: 'Reports', route: '#/head_teacher/reports' },
+    { icon: '📅', label: 'Calendar', route: '#/head_teacher/calendar' }
   ],
   teacher: [
     { icon: '📊', label: 'Dashboard', route: '#/teacher/dashboard' },

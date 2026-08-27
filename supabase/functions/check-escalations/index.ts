@@ -32,9 +32,9 @@ serve(async (req) => {
         id, title, assigned_to, due_date, escalation_level,
         assigned_by:profiles!tasks_assigned_by_fkey(id, full_name),
         teacher:teachers!tasks_assigned_to_fkey(id, profile_id,
-          supervisor:supervisor_teachers!supervisor_teachers_teacher_id_fkey(
-            supervisor_id,
-            supervisor:supervisors!supervisor_teachers_supervisor_id_fkey(id, profile_id)
+          head_teacher:head_teacher_teachers!head_teacher_teachers_teacher_id_fkey(
+            head_teacher_id,
+            head_teacher:head_teachers!head_teacher_teachers_head_teacher_id_fkey(id, profile_id)
           )
         )
       `)
@@ -45,17 +45,17 @@ serve(async (req) => {
     let escalatedCount = 0;
 
     for (const task of overdueTasks || []) {
-      // Get supervisor profile_id
-      const supervisorData = task.teacher?.supervisor?.[0]?.supervisor;
-      if (!supervisorData) continue;
+      // Get head_teacher profile_id
+      const head_teacherData = task.teacher?.head_teacher?.[0]?.head_teacher;
+      if (!head_teacherData) continue;
 
-      const supervisorProfileId = supervisorData.profile_id;
+      const head_teacherProfileId = head_teacherData.profile_id;
 
       // Create escalation
       await supabase.from("escalations").insert({
         task_id: task.id,
         from_user: task.assigned_to,
-        to_user: supervisorProfileId,
+        to_user: head_teacherProfileId,
         reason: `Task "${task.title}" is overdue by ${escalationDays}+ days`,
         status: "assigned",
       });
@@ -65,7 +65,7 @@ serve(async (req) => {
 
       // Create notification
       await supabase.from("notifications").insert({
-        user_id: supervisorProfileId,
+        user_id: head_teacherProfileId,
         title: "Escalation Alert",
         message: `Task "${task.title}" has been escalated to you. It is overdue by ${escalationDays}+ days.`,
         type: "warning",

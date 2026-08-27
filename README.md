@@ -12,7 +12,7 @@ A complete Kindergarten One-Page Website and School Management System built with
 - Parent login portal
 
 ### School Management System
-- **4 Role-Based Dashboards**: Admin, Supervisor, Teacher, Parent
+- **4 Role-Based Dashboards**: Admin, Head Teacher, Teacher, Parent
 - **No Student Login** — students are database records linked to parents
 - **Full CRUD** for users, classes, subjects, assignments
 - **Attendance tracking** with daily recording
@@ -23,7 +23,7 @@ A complete Kindergarten One-Page Website and School Management System built with
 - **Notifications system** for all user actions
 - **Audit logging** for important changes
 - **Calendar** for events and deadlines
-- **Feedback system** between supervisors, teachers, and parents
+- **Feedback system** between head_teachers, teachers, and parents
 
 ## Tech Stack
 - HTML5, CSS3 (Flexbox + CSS Grid)
@@ -42,7 +42,7 @@ kindergarten/
 │   ├── components/         # Reusable UI components
 │   ├── pages/              # Role-specific pages
 │   │   ├── admin/
-│   │   ├── supervisor/
+│   │   ├── head_teacher/
 │   │   ├── teacher/
 │   │   └── parent/
 │   └── website/            # Public website scripts
@@ -65,7 +65,7 @@ kindergarten/
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | admin@kindergarten.com | any |
-| Supervisor | supervisor@kindergarten.com | any |
+| Head Teacher | head_teacher@kindergarten.com | any |
 | Teacher | teacher1@kindergarten.com | any |
 | Parent | parent1@kindergarten.com | any |
 

@@ -198,13 +198,13 @@ function renderExams(container) {
 function renderTasks(container) {
   document.getElementById('page-title').textContent = 'My Tasks';
   container.innerHTML = `
-    <div class="section-header"><h2>Tasks from Supervisor</h2></div>
+    <div class="section-header"><h2>Tasks from Head Teacher</h2></div>
     <div class="card"><div class="card-body" id="tasks-table"></div></div>`;
 
   const tasks = [
-    { id: '1', title: 'Submit Weekly Report', from: 'Jane Supervisor', status: 'assigned', due_date: '2026-08-28', priority: 'high' },
-    { id: '2', title: 'Update Lesson Plans', from: 'Jane Supervisor', status: 'in_progress', due_date: '2026-08-30', priority: 'medium' },
-    { id: '3', title: 'Prepare Parent Meeting Notes', from: 'Jane Supervisor', status: 'submitted', due_date: '2026-08-27', priority: 'high' }
+    { id: '1', title: 'Submit Weekly Report', from: 'Jane Head Teacher', status: 'assigned', due_date: '2026-08-28', priority: 'high' },
+    { id: '2', title: 'Update Lesson Plans', from: 'Jane Head Teacher', status: 'in_progress', due_date: '2026-08-30', priority: 'medium' },
+    { id: '3', title: 'Prepare Parent Meeting Notes', from: 'Jane Head Teacher', status: 'submitted', due_date: '2026-08-27', priority: 'high' }
   ];
 
   import('../../components/table.js').then(({ renderTable }) => {
@@ -236,8 +236,8 @@ function renderFeedback(container) {
     <div class="card"><div class="card-body" id="feedback-table"></div></div>`;
 
   const feedback = [
-    { id: '1', from: 'Jane Supervisor', subject: 'Great job on KG1 attendance', status: 'completed', created_at: '2026-08-25' },
-    { id: '2', from: 'Jane Supervisor', subject: 'Review homework submission format', status: 'under_review', created_at: '2026-08-26' }
+    { id: '1', from: 'Jane Head Teacher', subject: 'Great job on KG1 attendance', status: 'completed', created_at: '2026-08-25' },
+    { id: '2', from: 'Jane Head Teacher', subject: 'Review homework submission format', status: 'under_review', created_at: '2026-08-26' }
   ];
 
   import('../../components/table.js').then(({ renderTable }) => {

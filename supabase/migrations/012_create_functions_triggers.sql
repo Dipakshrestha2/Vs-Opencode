@@ -40,11 +40,11 @@ CREATE TRIGGER results_updated_at BEFORE UPDATE ON results
 
 -- Function to create escalation
 CREATE OR REPLACE FUNCTION create_escalation(
-  p_task_id UUID DEFAULT NULL,
-  p_feedback_id UUID DEFAULT NULL,
   p_from_user UUID,
   p_to_user UUID,
-  p_reason TEXT
+  p_reason TEXT,
+  p_task_id UUID DEFAULT NULL,
+  p_feedback_id UUID DEFAULT NULL
 )
 RETURNS UUID AS $$
 DECLARE
@@ -99,12 +99,12 @@ BEGIN
 
   -- Create escalation for tasks overdue beyond threshold
   FOR v_task IN
-    SELECT t.*, s.profile_id as supervisor_id
+    SELECT t.*, s.profile_id as head_teacher_id
     FROM tasks t
-    JOIN supervisor_teachers st ON st.teacher_id = (
+    JOIN head_teacher_teachers st ON st.teacher_id = (
       SELECT id FROM teachers WHERE profile_id = t.assigned_to
     )
-    JOIN supervisors s ON s.id = st.supervisor_id
+    JOIN head_teachers s ON s.id = st.head_teacher_id
     WHERE t.status IN ('assigned', 'in_progress')
       AND t.due_date < CURRENT_DATE - (v_escalation_days || ' days')::INTERVAL
       AND t.escalation_level = 0
@@ -112,7 +112,7 @@ BEGIN
     PERFORM create_escalation(
       p_task_id := v_task.id,
       p_from_user := v_task.assigned_to,
-      p_to_user := v_task.supervisor_id,
+      p_to_user := v_task.head_teacher_id,
       p_reason := 'Task "' || v_task.title || '" is overdue by ' || (CURRENT_DATE - v_task.due_date) || ' days'
     );
     UPDATE tasks SET escalation_level = 1 WHERE id = v_task.id;

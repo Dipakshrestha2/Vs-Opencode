@@ -2,6 +2,10 @@
 // Uses the service role key (available server-side only) to call Supabase Auth Admin APIs.
 // The anon key cannot call these APIs, hence the need for this function.
 
+// @ts-ignore: Deno URL imports are valid in Edge Function runtime (not Node.js)
+// deno-lint-ignore-file
+/// <reference lib="deno.window" />
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const CORS = {

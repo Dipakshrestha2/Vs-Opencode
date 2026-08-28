@@ -93,9 +93,8 @@ BEGIN
 
   -- Update overdue tasks
   UPDATE tasks SET status = 'in_progress'
-  WHERE status IN ('assigned')
-    AND due_date < CURRENT_DATE
-    AND status != 'in_progress';
+  WHERE status = 'assigned'
+    AND due_date < CURRENT_DATE;
 
   -- Create escalation for tasks overdue beyond threshold
   FOR v_task IN

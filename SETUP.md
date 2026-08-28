@@ -1,7 +1,10 @@
 # Little Stars Kindergarten - Setup Guide
 
+This project targets a **live Supabase project** configured in `js/config.js`.
+If the key is missing/offline, the app falls back to **demo mode**.
+
 ## Prerequisites
-- [Supabase CLI](https://supabase.com/docs/guides/cli)
+- [Supabase CLI](https://supabase.com/docs/guides/cli) (for local dev / migrations)
 - A [Supabase](https://supabase.com) account
 - Node.js (for local dev server)
 
@@ -19,19 +22,22 @@
 1. Go to Project Settings → API
 2. Copy:
    - **Project URL** (looks like `https://xxxx.supabase.co`)
-   - **Anon Key** (public, safe for frontend)
+   - **Publishable Key** — modern Supabase projects expose a `sb_publishable_...` key
+     (older projects show an `eyJ...` anon key; both formats are accepted by the app)
 
 ## Step 3: Configure Frontend
 
 Edit `js/config.js`:
 ```javascript
 const SUPABASE_URL = 'https://YOUR-PROJECT-ID.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+const SUPABASE_ANON_KEY = 'sb_publishable_....';
 ```
+
+Do not add secrets here — this file is public (it ships to browsers).
 
 ## Step 4: Apply Database Migrations
 
-### Option A: Using Supabase Dashboard
+### Option A: Using Supabase Dashboard (recommended)
 1. Go to SQL Editor in Supabase Dashboard
 2. Run each migration file in order:
    - `001_enable_extensions.sql`
@@ -48,10 +54,31 @@ const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
    - `012_create_functions_triggers.sql`
    - `013_create_indexes.sql`
    - `014_seed_data.sql`
+   - `015_repair_rls_and_schema.sql` (fixes legacy/`supervisors` databases)
+   - `016_enhance_workflows.sql` (results approval, announcements, task comments)
+   - `017_escalation_engine.sql` (reminders + escalation automation + pg_cron job)
+   - `018_storage_setup.sql` (storage buckets + policies)
+   - `019_seed_extended_demo.sql` (**after Step 5** - see below) — seeds the demo
+     teachers/head teacher/parents, class & subject assignments, homework, exams,
+     results-in-review, tasks and feedback once the auth users exist.
+
+### Repairing an existing project (IMPORTANT)
+If your database was created with the older `supervisors` schema, is missing
+`head_teachers`, or the `attendance`/`attendance_records` tables return
+`infinite recursion detected in policy` errors, run:
+   - `015_repair_rls_and_schema.sql`
+
+It is idempotent (safe to re-run) and fixes:
+- missing `head_teacher` role value,
+- missing `head_teachers` / `head_teacher_teachers` tables,
+- attendance RLS recursive policies,
+- the `process_overdue_items()` function.
+
+`016`, `017` and `018` are also idempotent where they touch existing data, so
+they are safe to run against an existing project too.
 
 ### Option B: Using Supabase CLI
 ```bash
-supabase init
 supabase db push
 ```
 
@@ -61,12 +88,12 @@ In the Supabase Dashboard → Authentication → Users, create:
 
 | Email | Password | Role |
 |-------|----------|------|
-| admin@kindergarten.com | admin123 | admin |
-| head_teacher@kindergarten.com | super123 | head_teacher |
-| teacher1@kindergarten.com | teach123 | teacher |
-| teacher2@kindergarten.com | teach123 | teacher |
-| parent1@kindergarten.com | parent123 | parent |
-| parent2@kindergarten.com | parent123 | parent |
+| admin@kindergarten.com | (choose one) | admin |
+| head_teacher@kindergarten.com | (choose one) | head_teacher |
+| teacher1@kindergarten.com | (choose one) | teacher |
+| teacher2@kindergarten.com | (choose one) | teacher |
+| parent1@kindergarten.com | (choose one) | parent |
+| parent2@kindergarten.com | (choose one) | parent |
 
 **Important:** When creating users, add this JSON in the "User Metadata" field:
 ```json
@@ -80,6 +107,35 @@ For each user type:
 - Teacher 2: `{"full_name": "Michael Chen", "role": "teacher"}`
 - Parent 1: `{"full_name": "John Smith", "role": "parent"}`
 - Parent 2: `{"full_name": "Maria Garcia", "role": "parent"}`
+
+The `handle_new_user` trigger copies `full_name`/`role` into `profiles`.
+Then in the SQL Editor, link the records (edit the emails to match the users you created):
+
+```sql
+-- Teachers
+INSERT INTO teachers (profile_id)
+SELECT id FROM profiles WHERE email = 'teacher1@kindergarten.com' AND NOT EXISTS (SELECT 1 FROM teachers t WHERE t.profile_id = profiles.id);
+
+-- Head teacher
+INSERT INTO head_teachers (profile_id)
+SELECT id FROM profiles WHERE email = 'head_teacher@kindergarten.com' AND NOT EXISTS (SELECT 1 FROM head_teachers ht WHERE ht.profile_id = profiles.id);
+
+-- Parent
+INSERT INTO parents (profile_id)
+SELECT id FROM profiles WHERE email = 'parent1@kindergarten.com' AND NOT EXISTS (SELECT 1 FROM parents p WHERE p.profile_id = profiles.id);
+
+-- Link head teacher -> teachers
+INSERT INTO head_teacher_teachers (head_teacher_id, teacher_id)
+SELECT (SELECT id FROM head_teachers WHERE profile_id = (SELECT id FROM profiles WHERE email='head_teacher@kindergarten.com')),
+       (SELECT id FROM teachers WHERE profile_id = (SELECT id FROM profiles WHERE email='teacher1@kindergarten.com'))
+WHERE NOT EXISTS (SELECT 1 FROM head_teacher_teachers);
+```
+
+Then run `019_seed_extended_demo.sql` in the SQL Editor. It resolves the demo
+users by email and inserts their class/subject/head-teacher links, homework,
+an exam with results waiting for review, tasks, feedback and announcements.
+It is safe to re-run and does nothing (prints a NOTICE) if the demo users do
+not exist yet.
 
 ## Step 6: Deploy Edge Functions
 
@@ -129,27 +185,24 @@ In Supabase Dashboard → Storage, create:
 ## Step 9: Run Locally
 
 ```bash
-# Using Python
-python -m http.server 8080
-
-# Using Node.js
-npx serve .
-
-# Using PHP
-php -S localhost:8080
+npm run serve   # or: python3 -m http.server 8080
 ```
 
 Open http://localhost:8080
 
+The page loads Supabase from `js/vendor/supabase.min.js` and falls back to the
+CDN if the local copy is missing.
+
 ## Demo Mode
 
-If Supabase is not configured, the app runs in demo mode with simulated data. Use any of the demo emails to log in.
+If Supabase is not configured (or offline), the app runs in demo mode with
+simulated data. Use any of the demo emails with any password.
 
 ## Default Login Credentials
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@kindergarten.com | admin123 |
-| Head Teacher | head_teacher@kindergarten.com | super123 |
-| Teacher | teacher1@kindergarten.com | teach123 |
-| Parent | parent1@kindergarten.com | parent123 |
+| Admin | admin@kindergarten.com | any |
+| Head Teacher | head_teacher@kindergarten.com | any |
+| Teacher | teacher1@kindergarten.com | any |
+| Parent | parent1@kindergarten.com | any |

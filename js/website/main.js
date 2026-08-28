@@ -105,7 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     if (valid) {
-      alert('Thank you for your message! We will get back to you soon.');
+      const formWrap = contactForm.closest('.form-wrap') || contactForm.parentElement;
+      let success = formWrap.querySelector('.form-success');
+      if (!success) {
+        success = document.createElement('div');
+        success.className = 'form-success';
+        contactForm.insertAdjacentElement('afterend', success);
+      }
+      success.textContent = 'Thank you for your message! We will get back to you soon.';
+      success.style.display = 'block';
       contactForm.reset();
     }
   });

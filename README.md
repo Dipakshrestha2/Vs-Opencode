@@ -19,11 +19,18 @@ A complete Kindergarten One-Page Website and School Management System built with
 - **Homework management** with submissions
 - **Exam results** entry and viewing
 - **Task workflow**: Assigned → In Progress → Submitted → Under Review → Approved/Rejected → Completed
-- **Automatic escalation** of overdue items (configurable period)
+- **Automatic escalation** of overdue items (configurable period) — teacher items escalate to the assigned head teacher, head-teacher items to an admin
+- **Result approval workflow**: draft → submitted → under review → approved → published (or rejected); parents only ever see **published** results
+- **Task comments** between head teachers and teachers
+- **Announcements** (admin-published, visible to everyone)
+- **Notification center** (bell dropdown + per-role page, mark-all-read)
 - **Notifications system** for all user actions
 - **Audit logging** for important changes
 - **Calendar** for events and deadlines
 - **Feedback system** between head_teachers, teachers, and parents
+- **Password reset** (forgot-password flow → recovery link → set new password)
+- **Multi-child parent view** with a persisted child selector
+- **Storage**: public avatars/student-photos/gallery, private homework-documents/exam-papers
 
 ## Tech Stack
 - HTML5, CSS3 (Flexbox + CSS Grid)
@@ -35,10 +42,12 @@ A complete Kindergarten One-Page Website and School Management System built with
 ```
 kindergarten/
 ├── index.html              # Public website
-├── login.html              # Authentication page
+├── login.html              # Authentication page (+ forgot password)
+├── reset-password.html     # Password reset (recovery link)
 ├── dashboard.html          # Dashboard shell
 ├── css/                    # Stylesheets
 ├── js/                     # JavaScript modules
+│   ├── vendor/             # Bundled supabase-js (offline-safe SDK)
 │   ├── components/         # Reusable UI components
 │   ├── pages/              # Role-specific pages
 │   │   ├── admin/
@@ -46,15 +55,18 @@ kindergarten/
 │   │   ├── teacher/
 │   │   └── parent/
 │   └── website/            # Public website scripts
+├── scripts/                # Dev helpers (vendor SDK bundling)
 ├── assets/                 # Images and icons
 ├── supabase/               # Database migrations & edge functions
-└── SETUP.md                # Setup instructions
+├── setup-manual.md         # Complete setup manual (recommended)
+└── SETUP.md                # Quick setup instructions
 ```
 
 ## Quick Start
 
-1. Follow [SETUP.md](SETUP.md) for full configuration
-2. Or run in demo mode (no Supabase needed):
+1. Follow [setup-manual.md](setup-manual.md) for the complete walkthrough
+2. Or use the quick [SETUP.md](SETUP.md)
+3. Or run in demo mode (no Supabase needed):
    ```bash
    python -m http.server 8080
    ```

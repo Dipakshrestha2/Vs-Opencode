@@ -30,6 +30,11 @@
     .home-link { text-align: center; margin-top: 20px; }
     .home-link a { color: var(--color-gray); font-size: 0.9rem; }
     .home-link a:hover { color: var(--color-blue); }
+    .demo-hint { margin-top: 18px; text-align: left; font-size: 0.85rem; color: var(--color-gray); border-top: 1px dashed #E0E0E0; padding-top: 14px; }
+    .demo-hint summary { cursor: pointer; font-weight: 600; color: var(--color-blue); outline: none; }
+    .demo-hint table { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 0.8rem; }
+    .demo-hint td, .demo-hint th { padding: 4px 6px; text-align: left; border-bottom: 1px solid #F0F0F0; }
+    .demo-hint .demo-note { margin-top: 8px; color: var(--color-gray); font-size: 0.8rem; }
   </style>
 </head>
 <body>
@@ -41,90 +46,175 @@
         <div class="login-subtitle">School Management System</div>
       </div>
       <div class="login-error" id="login-error"></div>
+      <div class="login-error" id="reset-message" style="background:#F0FFF4;color:var(--color-green);"></div>
       <form class="login-form" id="login-form">
         <div class="form-group">
           <label for="email">Email Address</label>
           <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="password-group">
           <label for="password">Password</label>
           <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+          <button type="button" id="forgot-link" style="background:none;border:none;padding:0;margin-top:8px;color:var(--color-blue);font-weight:600;cursor:pointer;font-size:0.85rem;">Forgot password?</button>
         </div>
         <button type="submit" class="login-btn" id="login-btn">Sign In</button>
       </form>
+      <details class="demo-hint">
+        <summary>View demo credentials</summary>
+        <table>
+          <tr><th>Role</th><th>Email</th><th>Password</th></tr>
+          <tr><td>Admin</td><td>admin@kindergarten.com</td><td>any</td></tr>
+          <tr><td>Head Teacher</td><td>head_teacher@kindergarten.com</td><td>any</td></tr>
+          <tr><td>Teacher</td><td>teacher1@kindergarten.com</td><td>any</td></tr>
+          <tr><td>Parent</td><td>parent1@kindergarten.com</td><td>any</td></tr>
+        </table>
+        <div class="demo-note">Demo accounts work without Supabase. With a configured database, use real user passwords.</div>
+      </details>
       <div class="home-link">
         <a href="index.html">← Back to Home</a>
       </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase SDK loader: local bundle first, CDN as fallback -->
+  <script>
+    function supabaseLoadFallback() {
+      if (window.supabase) return;
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+      s.onerror = function () { console.warn('Supabase CDN fallback failed to load. Demo mode only.'); };
+      document.head.appendChild(s);
+    }
+  </script>
+  <script src="js/vendor/supabase.min.js" onerror="supabaseLoadFallback()"></script>
   <script type="module">
-    import { supabase } from './js/config.js';
+    import { ensureSupabase } from './js/config.js';
+    import { signIn, loadProfile, redirectByRole } from './js/auth.js';
 
+    const client = await ensureSupabase();
     const form = document.getElementById('login-form');
     const errorDiv = document.getElementById('login-error');
+    const resetMessage = document.getElementById('reset-message');
     const loginBtn = document.getElementById('login-btn');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const passwordGroup = document.getElementById('password-group');
+    const forgotLink = document.getElementById('forgot-link');
 
-    // Check existing session
-    if (supabase) {
-      const { data: { session } } = await supabase.auth.getSession();
+    const DEMO_USERS = {
+      'admin@kindergarten.com': { role: 'admin', full_name: 'Admin User' },
+      'head_teacher@kindergarten.com': { role: 'head_teacher', full_name: 'Jane Head Teacher' },
+      'teacher1@kindergarten.com': { role: 'teacher', full_name: 'Sarah Johnson' },
+      'teacher2@kindergarten.com': { role: 'teacher', full_name: 'Michael Chen' },
+      'parent1@kindergarten.com': { role: 'parent', full_name: 'John Smith' },
+      'parent2@kindergarten.com': { role: 'parent', full_name: 'Maria Garcia' }
+    };
+
+    // If a valid session already exists, send the user straight to their dashboard.
+    if (client) {
+      const { data: { session } } = await client.auth.getSession();
       if (session) {
-        const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+        const stored = JSON.parse(sessionStorage.getItem('profile') || 'null');
+        const profile = stored || await loadProfile(session.user.id);
         if (profile) {
-          const routes = { admin: '#/admin/dashboard', head_teacher: '#/head_teacher/dashboard', teacher: '#/teacher/dashboard', parent: '#/parent/dashboard' };
-          window.location.href = 'dashboard.html' + (routes[profile.role] || '');
+          window.location.href = 'dashboard.html' + redirectByRole(profile.role);
         }
       }
     }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    // ---- Password reset flow (email-only view) ----
+    function setResetMode() {
+      passwordGroup.style.display = 'none';
+      loginBtn.textContent = 'Send Reset Link';
+      loginBtn.type = 'button';
+      loginBtn.dataset.mode = 'reset';
+      resetMessage.style.display = 'none';
+      errorDiv.style.display = 'none';
+      emailInput.placeholder = 'Enter your account email';
+      emailInput.focus();
+    }
+
+    async function sendResetLink() {
+      const email = emailInput.value.trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errorDiv.textContent = 'Please enter a valid email address';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (!client) {
+        resetMessage.textContent = 'Password reset requires the Supabase connection. Demo accounts cannot be reset here.';
+        resetMessage.style.display = 'block';
+        return;
+      }
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Sending...';
+      const { error } = await client.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/reset-password.html'
+      });
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Send Reset Link';
+      if (error) {
+        errorDiv.textContent = error.message || 'Could not send reset link';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      resetMessage.textContent = 'Reset link sent! Check your inbox for instructions.';
+      resetMessage.style.display = 'block';
+    }
+
+    // ---- Sign-in ----
+    async function submitLogin() {
       errorDiv.style.display = 'none';
       loginBtn.disabled = true;
       loginBtn.textContent = 'Signing in...';
 
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
 
-      if (!supabase) {
-        // Demo mode - simulate login
-        const demoUsers = {
-          'admin@kindergarten.com': { role: 'admin', full_name: 'Admin User' },
-          'head_teacher@kindergarten.com': { role: 'head_teacher', full_name: 'Jane Head Teacher' },
-          'teacher1@kindergarten.com': { role: 'teacher', full_name: 'Sarah Johnson' },
-          'teacher2@kindergarten.com': { role: 'teacher', full_name: 'Michael Chen' },
-          'parent1@kindergarten.com': { role: 'parent', full_name: 'John Smith' },
-          'parent2@kindergarten.com': { role: 'parent', full_name: 'Maria Garcia' }
-        };
-        const user = demoUsers[email];
+      if (!client) {
+        const user = DEMO_USERS[email.toLowerCase()];
         if (user && password) {
-          sessionStorage.setItem('profile', JSON.stringify({ id: 'demo-' + email.split('@')[0], email, ...user }));
-          window.location.href = 'dashboard.html#/' + user.role + '/dashboard';
+          sessionStorage.setItem('profile', JSON.stringify({
+            id: 'demo-' + email.split('@')[0].replace(/[^a-z0-9]/gi, ''),
+            email,
+            ...user
+          }));
+          window.location.href = 'dashboard.html' + redirectByRole(user.role);
           return;
         }
-        errorDiv.textContent = 'Configure Supabase credentials in config.js, or use demo credentials shown below.';
+        errorDiv.textContent = 'Supabase SDK is not available. Use the demo credentials below, or check js/vendor/supabase.min.js.';
         errorDiv.style.display = 'block';
         loginBtn.disabled = false;
         loginBtn.textContent = 'Sign In';
         return;
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        errorDiv.textContent = error.message;
+      const res = await signIn(email, password);
+      if (res.error) {
+        errorDiv.textContent = res.error.message || 'Invalid email or password';
         errorDiv.style.display = 'block';
         loginBtn.disabled = false;
         loginBtn.textContent = 'Sign In';
         return;
       }
 
-      const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
-      if (profile) {
-        sessionStorage.setItem('profile', JSON.stringify(profile));
-        const routes = { admin: '#/admin/dashboard', head_teacher: '#/head_teacher/dashboard', teacher: '#/teacher/dashboard', parent: '#/parent/dashboard' };
-        window.location.href = 'dashboard.html' + (routes[profile.role] || '');
-      }
+      const profile = res.data;
+      sessionStorage.setItem('profile', JSON.stringify(profile));
+      window.location.href = 'dashboard.html' + redirectByRole(profile.role);
+    }
+
+    // ---- Wire up ----
+    forgotLink?.addEventListener('click', setResetMode);
+    // The button is type=submit normally, so clicking it fires the form's
+    // submit handler. In reset mode we switch it to type=button and handle
+    // the click here instead (the form is never submitted in that mode).
+    loginBtn.addEventListener('click', () => {
+      if (loginBtn.dataset.mode === 'reset') sendResetLink();
+    });
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (loginBtn.dataset.mode === 'reset') sendResetLink();
+      else submitLogin();
     });
   </script>
 </body>

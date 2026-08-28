@@ -1,10 +1,9 @@
-import { supabase } from './config.js';
-import { getState, setState, clearState } from './state.js';
-import { loadProfile, signOut, redirectByRole } from './auth.js';
-import { initRouter, registerRoute, navigate } from './router.js';
-import { showToast } from './components/toast.js';
+import { ensureSupabase } from './config.js';
+import { getState, setState } from './state.js';
+import { loadProfile, signOut, roleLabel } from './auth.js';
+import { refreshBadge } from './components/notifications.js';
 
-const sidebarConfig = {
+export const sidebarConfig = {
   admin: [
     { icon: '📊', label: 'Dashboard', route: '#/admin/dashboard' },
     { icon: '👥', label: 'Users', route: '#/admin/users' },
@@ -12,6 +11,7 @@ const sidebarConfig = {
     { icon: '📚', label: 'Subjects', route: '#/admin/subjects' },
     { icon: '📅', label: 'Academic Years', route: '#/admin/academic-years' },
     { icon: '🔗', label: 'Assignments', route: '#/admin/assignments' },
+    { icon: '📣', label: 'Announcements', route: '#/admin/announcements' },
     { icon: '📈', label: 'Reports', route: '#/admin/reports' },
     { icon: '⚙️', label: 'Settings', route: '#/admin/settings' },
     { icon: '📋', label: 'Audit Log', route: '#/admin/audit-log' }
@@ -22,6 +22,7 @@ const sidebarConfig = {
     { icon: '👁️', label: 'Monitor', route: '#/head_teacher/monitor' },
     { icon: '📝', label: 'Tasks', route: '#/head_teacher/tasks' },
     { icon: '📤', label: 'Submissions', route: '#/head_teacher/submissions' },
+    { icon: '💬', label: 'Feedback', route: '#/head_teacher/feedback' },
     { icon: '⚠️', label: 'Escalations', route: '#/head_teacher/escalations' },
     { icon: '📈', label: 'Reports', route: '#/head_teacher/reports' },
     { icon: '📅', label: 'Calendar', route: '#/head_teacher/calendar' }
@@ -43,6 +44,7 @@ const sidebarConfig = {
     { icon: '📝', label: 'Homework', route: '#/parent/homework' },
     { icon: '📈', label: 'Results', route: '#/parent/results' },
     { icon: '💬', label: 'Feedback', route: '#/parent/feedback' },
+    { icon: '📣', label: 'Announcements', route: '#/parent/announcements' },
     { icon: '📅', label: 'Calendar', route: '#/parent/calendar' }
   ]
 };
@@ -59,7 +61,7 @@ function renderSidebar(profile) {
       <div class="sidebar-avatar">${profile.full_name ? profile.full_name[0].toUpperCase() : '?'}</div>
       <div class="sidebar-user-info">
         <div class="sidebar-user-name">${profile.full_name || 'User'}</div>
-        <div class="sidebar-user-role">${profile.role}</div>
+        <div class="sidebar-user-role">${roleLabel(profile.role)}</div>
       </div>
     </div>
     <nav class="sidebar-nav">
@@ -99,7 +101,7 @@ function setupMobileMenu() {
   });
 }
 
-async function initDashboard() {
+export async function initDashboard() {
   const profile = getState().profile;
   if (!profile) {
     window.location.href = 'login.html';
@@ -107,27 +109,37 @@ async function initDashboard() {
   }
   renderSidebar(profile);
   setupMobileMenu();
+  setupNotificationBell(profile.role);
+  await refreshBadge();
   window.addEventListener('hashchange', highlightActiveLink);
   highlightActiveLink();
-  initRouter();
+}
+
+function setupNotificationBell(role) {
+  const btn = document.getElementById('notif-btn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    window.location.hash = '#/' + role + '/notifications';
+  });
 }
 
 export async function boot() {
-  if (!supabase) {
-    console.warn('Supabase not configured. Running in demo mode.');
-    return;
+  const client = await ensureSupabase();
+  if (!client) {
+    console.warn('Supabase not available. Running in demo mode.');
+    return null;
   }
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await client.auth.getSession();
   if (!session) {
     if (!window.location.pathname.includes('login') && !window.location.pathname.includes('index')) {
       window.location.href = 'login.html';
     }
-    return;
+    return null;
   }
   const profile = await loadProfile(session.user.id);
-  if (!profile) return;
+  if (!profile) return null;
   setState('profile', profile);
-  sessionStorage.setItem('profile', JSON.stringify(profile));
+  return profile;
 }
 
-export { initDashboard, sidebarConfig, highlightActiveLink };
+export { highlightActiveLink };

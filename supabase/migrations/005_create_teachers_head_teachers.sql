@@ -8,8 +8,8 @@ CREATE TABLE teachers (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Supervisors
-CREATE TABLE supervisors (
+-- Head Teachers
+CREATE TABLE head_teachers (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   profile_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   employee_id TEXT UNIQUE,
@@ -38,18 +38,17 @@ CREATE TABLE teacher_subjects (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Supervisor-Teacher assignments
-CREATE TABLE supervisor_teachers (
+-- Head Teacher-Teacher assignments
+CREATE TABLE head_teacher_teachers (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  supervisor_id UUID REFERENCES supervisors(id) ON DELETE CASCADE,
+  head_teacher_id UUID REFERENCES head_teachers(id) ON DELETE CASCADE,
   teacher_id UUID REFERENCES teachers(id) ON DELETE CASCADE,
   academic_year_id UUID REFERENCES academic_years(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(supervisor_id, teacher_id, academic_year_id)
+  UNIQUE(head_teacher_id, teacher_id, academic_year_id)
 );
 
-ALTER TABLE teachers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE supervisors ENABLE ROW LEVEL SECURITY;
+ALTER TABLE head_teachers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE teacher_classes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE teacher_subjects ENABLE ROW LEVEL SECURITY;
-ALTER TABLE supervisor_teachers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE head_teacher_teachers ENABLE ROW LEVEL SECURITY;

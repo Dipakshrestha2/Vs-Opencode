@@ -1,4 +1,13 @@
 {
+  "name": "little-stars-kindergarten",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kindergarten website + school management system (vanilla JS + Supabase).",
+  "scripts": {
+    "serve": "python3 -m http.server 8080",
+    "build": "node scripts/vendor-supabase.mjs",
+    "check": "node --input-type=module --check js/config.js"
+  },
   "dependencies": {
     "@supabase/server": "^1.4.1"
   }

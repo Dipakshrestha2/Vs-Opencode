@@ -20,10 +20,16 @@ RETURNS UUID AS $$
   SELECT id FROM teachers WHERE profile_id = auth.uid();
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 
--- Helper function to get current user's supervisor ID
+-- Helper function to get current user's head teacher ID
+CREATE OR REPLACE FUNCTION get_head_teacher_id()
+RETURNS UUID AS $$
+  SELECT id FROM head_teachers WHERE profile_id = auth.uid();
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
+-- Backward-compatible alias for old installations
 CREATE OR REPLACE FUNCTION get_supervisor_id()
 RETURNS UUID AS $$
-  SELECT id FROM supervisors WHERE profile_id = auth.uid();
+  SELECT get_head_teacher_id();
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 
 -- Helper function to get current user's parent ID
@@ -95,9 +101,9 @@ CREATE POLICY "Admin manages subjects" ON subjects
 CREATE POLICY "Admin full access on teachers" ON teachers
   FOR ALL USING (is_admin());
 
-CREATE POLICY "Supervisors can read assigned teachers" ON teachers
+CREATE POLICY "Head teachers can read assigned teachers" ON teachers
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM supervisor_teachers st WHERE st.supervisor_id = get_supervisor_id() AND st.teacher_id = teachers.id)
+    EXISTS (SELECT 1 FROM head_teacher_teachers st WHERE st.head_teacher_id = get_head_teacher_id() AND st.teacher_id = teachers.id)
     OR get_user_role() = 'admin'
   );
 
@@ -105,12 +111,12 @@ CREATE POLICY "Teachers can read own record" ON teachers
   FOR SELECT USING (profile_id = auth.uid());
 
 -- =============================================
--- SUPERVISORS
+-- HEAD TEACHERS
 -- =============================================
-CREATE POLICY "Admin manages supervisors" ON supervisors
+CREATE POLICY "Admin manages head_teachers" ON head_teachers
   FOR ALL USING (is_admin());
 
-CREATE POLICY "Supervisors can read own record" ON supervisors
+CREATE POLICY "Head teachers can read own record" ON head_teachers
   FOR SELECT USING (profile_id = auth.uid());
 
 -- =============================================
@@ -122,9 +128,9 @@ CREATE POLICY "Admin full access on teacher_classes" ON teacher_classes
 CREATE POLICY "Teachers can read own assignments" ON teacher_classes
   FOR SELECT USING (teacher_id = get_teacher_id());
 
-CREATE POLICY "Supervisors can read assigned teacher classes" ON teacher_classes
+CREATE POLICY "Head teachers can read assigned teacher classes" ON teacher_classes
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM supervisor_teachers st WHERE st.supervisor_id = get_supervisor_id() AND st.teacher_id = teacher_classes.teacher_id)
+    EXISTS (SELECT 1 FROM head_teacher_teachers st WHERE st.head_teacher_id = get_head_teacher_id() AND st.teacher_id = teacher_classes.teacher_id)
   );
 
 -- =============================================
@@ -137,13 +143,13 @@ CREATE POLICY "Teachers can read own subject assignments" ON teacher_subjects
   FOR SELECT USING (teacher_id = get_teacher_id());
 
 -- =============================================
--- SUPERVISOR_TEACHERS
+-- HEAD_TEACHER_TEACHERS
 -- =============================================
-CREATE POLICY "Admin manages supervisor_teachers" ON supervisor_teachers
+CREATE POLICY "Admin manages head_teacher_teachers" ON head_teacher_teachers
   FOR ALL USING (is_admin());
 
-CREATE POLICY "Supervisors can read own assignments" ON supervisor_teachers
-  FOR SELECT USING (supervisor_id = get_supervisor_id());
+CREATE POLICY "Head teachers can read own assignments" ON head_teacher_teachers
+  FOR SELECT USING (head_teacher_id = get_head_teacher_id());
 
 -- =============================================
 -- STUDENTS
@@ -156,9 +162,9 @@ CREATE POLICY "Teachers can read students in their classes" ON students
     EXISTS (SELECT 1 FROM teacher_classes tc WHERE tc.teacher_id = get_teacher_id() AND tc.class_id = students.class_id AND tc.section_id = students.section_id)
   );
 
-CREATE POLICY "Supervisors can read students in assigned teachers classes" ON students
+CREATE POLICY "Head teachers can read students in assigned teachers classes" ON students
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM supervisor_teachers st JOIN teacher_classes tc ON tc.teacher_id = st.teacher_id WHERE st.supervisor_id = get_supervisor_id() AND tc.class_id = students.class_id)
+    EXISTS (SELECT 1 FROM head_teacher_teachers st JOIN teacher_classes tc ON tc.teacher_id = st.teacher_id WHERE st.head_teacher_id = get_head_teacher_id() AND tc.class_id = students.class_id)
   );
 
 CREATE POLICY "Parents can read linked children" ON students
@@ -186,6 +192,8 @@ CREATE POLICY "Parents can read own links" ON parent_students
 
 -- =============================================
 -- ATTENDANCE
+-- NOTE: these policies deliberately do NOT reference attendance_records
+-- (and vice versa) to avoid the "infinite recursion" RLS error.
 -- =============================================
 CREATE POLICY "Admin full access on attendance" ON attendance
   FOR ALL USING (is_admin());
@@ -195,14 +203,14 @@ CREATE POLICY "Teachers can manage attendance for their classes" ON attendance
     EXISTS (SELECT 1 FROM teacher_classes tc WHERE tc.teacher_id = get_teacher_id() AND tc.class_id = attendance.class_id AND tc.section_id = attendance.section_id)
   );
 
-CREATE POLICY "Supervisors can read attendance for assigned classes" ON attendance
+CREATE POLICY "Head teachers can read attendance for assigned classes" ON attendance
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM supervisor_teachers st JOIN teacher_classes tc ON tc.teacher_id = st.teacher_id WHERE st.supervisor_id = get_supervisor_id() AND tc.class_id = attendance.class_id)
+    EXISTS (SELECT 1 FROM head_teacher_teachers st JOIN teacher_classes tc ON tc.teacher_id = st.teacher_id WHERE st.head_teacher_id = get_head_teacher_id() AND tc.class_id = attendance.class_id)
   );
 
 CREATE POLICY "Parents can read attendance for linked children" ON attendance
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM attendance_records ar JOIN parent_students ps ON ps.student_id = ar.student_id WHERE ps.parent_id = get_parent_id() AND ar.attendance_id = attendance.id)
+    EXISTS (SELECT 1 FROM parent_students ps JOIN students s ON s.id = ps.student_id WHERE ps.parent_id = get_parent_id() AND s.class_id = attendance.class_id AND s.section_id = attendance.section_id)
   );
 
 -- =============================================
@@ -213,7 +221,7 @@ CREATE POLICY "Admin full access on attendance_records" ON attendance_records
 
 CREATE POLICY "Teachers can manage records for their classes" ON attendance_records
   FOR ALL USING (
-    EXISTS (SELECT 1 FROM attendance a JOIN teacher_classes tc ON tc.teacher_id = get_teacher_id() WHERE a.id = attendance_records.attendance_id AND tc.class_id = a.class_id)
+    EXISTS (SELECT 1 FROM attendance a JOIN teacher_classes tc ON tc.teacher_id = get_teacher_id() WHERE a.id = attendance_records.attendance_id AND tc.class_id = a.class_id AND tc.section_id = a.section_id)
   );
 
 CREATE POLICY "Parents can read records for linked children" ON attendance_records
@@ -235,9 +243,9 @@ CREATE POLICY "Parents can read homework for linked children classes" ON homewor
     EXISTS (SELECT 1 FROM parent_students ps JOIN students s ON s.id = ps.student_id WHERE ps.parent_id = get_parent_id() AND s.class_id = homework.class_id AND s.section_id = homework.section_id)
   );
 
-CREATE POLICY "Supervisors can read homework for assigned teachers" ON homework
+CREATE POLICY "Head teachers can read homework for assigned teachers" ON homework
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM supervisor_teachers st WHERE st.supervisor_id = get_supervisor_id() AND st.teacher_id = homework.teacher_id)
+    EXISTS (SELECT 1 FROM head_teacher_teachers st WHERE st.head_teacher_id = get_head_teacher_id() AND st.teacher_id = homework.teacher_id)
   );
 
 -- =============================================
@@ -265,9 +273,9 @@ CREATE POLICY "Admin full access on exams" ON exams
 CREATE POLICY "Teachers can manage own exams" ON exams
   FOR ALL USING (teacher_id = get_teacher_id());
 
-CREATE POLICY "Supervisors can read exams for assigned teachers" ON exams
+CREATE POLICY "Head teachers can read exams for assigned teachers" ON exams
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM supervisor_teachers st WHERE st.supervisor_id = get_supervisor_id() AND st.teacher_id = exams.teacher_id)
+    EXISTS (SELECT 1 FROM head_teacher_teachers st WHERE st.head_teacher_id = get_head_teacher_id() AND st.teacher_id = exams.teacher_id)
   );
 
 -- =============================================
@@ -292,7 +300,7 @@ CREATE POLICY "Parents can read results for linked children" ON results
 CREATE POLICY "Admin full access on tasks" ON tasks
   FOR ALL USING (is_admin());
 
-CREATE POLICY "Supervisors can manage tasks they assigned" ON tasks
+CREATE POLICY "Head teachers can manage tasks they assigned" ON tasks
   FOR ALL USING (assigned_by = auth.uid());
 
 CREATE POLICY "Teachers can read/update tasks assigned to them" ON tasks
@@ -335,10 +343,10 @@ CREATE POLICY "Users can respond to their feedback" ON feedback_responses
 CREATE POLICY "Admin manages escalations" ON escalations
   FOR ALL USING (is_admin());
 
-CREATE POLICY "Supervisors can read escalations involving them" ON escalations
+CREATE POLICY "Head teachers can read escalations involving them" ON escalations
   FOR SELECT USING (
     to_user = auth.uid() OR from_user = auth.uid() OR
-    EXISTS (SELECT 1 FROM supervisors s WHERE s.profile_id = auth.uid() AND escalations.to_user = s.profile_id)
+    EXISTS (SELECT 1 FROM head_teachers s WHERE s.profile_id = auth.uid() AND escalations.to_user = s.profile_id)
   );
 
 -- =============================================
@@ -362,8 +370,8 @@ CREATE POLICY "Authenticated users can read calendar events" ON calendar_events
 CREATE POLICY "Admin manages calendar events" ON calendar_events
   FOR ALL USING (is_admin());
 
-CREATE POLICY "Supervisors can manage calendar events" ON calendar_events
-  FOR ALL USING (get_user_role() = 'supervisor');
+CREATE POLICY "Head teachers can manage calendar events" ON calendar_events
+  FOR ALL USING (get_user_role() IN ('head_teacher', 'supervisor'));
 
 CREATE POLICY "Teachers can manage calendar events" ON calendar_events
   FOR ALL USING (get_user_role() = 'teacher');

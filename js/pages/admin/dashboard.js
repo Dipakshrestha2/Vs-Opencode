@@ -1,6 +1,7 @@
 import { registerRoute } from '../../router.js';
 import { showToast } from '../../components/toast.js';
 import { fetchAllOrDemo, insertRecord, updateRecord, deleteRecord, fetchCount, fetchAll, isDemo, getSupabase } from '../../api.js';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../../config.js';
 import { openModal, confirmDialog } from '../../components/modal.js';
 import { renderForm } from '../../components/form.js';
 
@@ -244,19 +245,20 @@ async function renderUsers(container) {
     if (!c) return { error: { message: 'Demo mode: Supabase not connected' } };
     const { data: { session } } = await c.auth.getSession();
     const token = session?.access_token;
-    const url = `${c.supabaseUrl}/functions/v1/manage-user`;
+    if (!token) return { error: { message: 'Not authenticated. Please log in again.' } };
+    const url = `${SUPABASE_URL}/functions/v1/manage-user`;
     try {
       const res = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
-          'apikey': c.supabaseKey,
+          'apikey': SUPABASE_ANON_KEY,
         },
         body: JSON.stringify(payload),
       });
-      const json = await res.json();
-      return res.ok ? { data: json.data } : { error: { message: json.error || 'Unknown error' } };
+      const json = await res.json().catch(() => ({}));
+      return res.ok ? { data: json.data } : { error: { message: json.error || `HTTP ${res.status}: Edge Function error` } };
     } catch (e) {
       return { error: { message: e.message } };
     }

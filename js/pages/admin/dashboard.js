@@ -238,6 +238,30 @@ async function renderUsers(container) {
     ]
   });
 
+  // Calls the manage-user Edge Function which uses the service-role key
+  async function callManageUser(payload) {
+    const c = getSupabase();
+    if (!c) return { error: { message: 'Demo mode: Supabase not connected' } };
+    const { data: { session } } = await c.auth.getSession();
+    const token = session?.access_token;
+    const url = `${c.supabaseUrl}/functions/v1/manage-user`;
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'apikey': c.supabaseKey,
+        },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      return res.ok ? { data: json.data } : { error: { message: json.error || 'Unknown error' } };
+    } catch (e) {
+      return { error: { message: e.message } };
+    }
+  }
+
   function openUserForm(user = null) {
     const formContainer = document.createElement('div');
     const close = openModal({
@@ -246,19 +270,26 @@ async function renderUsers(container) {
       size: 'md'
     });
 
+    const fields = [
+      { key: 'full_name', label: 'Full Name', required: true },
+      { key: 'role', label: 'Role', type: 'select', required: true, options: [
+        { value: 'admin', label: 'Admin' },
+        { value: 'head_teacher', label: 'Head Teacher' },
+        { value: 'teacher', label: 'Teacher' },
+        { value: 'parent', label: 'Parent' }
+      ]},
+      { key: 'is_active', label: 'Active Status', type: 'checkbox', checkLabel: 'Is Active' }
+    ];
+
+    // Email + password only shown when creating a new user
+    if (!user) {
+      fields.splice(1, 0, { key: 'email', label: 'Email', type: 'email', required: true });
+      fields.push({ key: 'password', label: 'Password', type: 'password', required: true });
+    }
+
     renderForm({
       container: formContainer,
-      fields: [
-        { key: 'full_name', label: 'Full Name', required: true },
-        { key: 'email', label: 'Email', type: 'email', required: true },
-        { key: 'role', label: 'Role', type: 'select', required: true, options: [
-          { value: 'admin', label: 'Admin' },
-          { value: 'head_teacher', label: 'Head Teacher' },
-          { value: 'teacher', label: 'Teacher' },
-          { value: 'parent', label: 'Parent' }
-        ]},
-        { key: 'is_active', label: 'Active Status', type: 'checkbox', checkLabel: 'Is Active' }
-      ],
+      fields,
       values: user ? { ...user } : { is_active: true },
       onSubmit: async (data) => {
         if (!fromDb) {
@@ -275,18 +306,24 @@ async function renderUsers(container) {
           return;
         }
 
-        // Live mode. New users must exist in Supabase Auth first — we only
-        // create/update the profile record that is linked to an auth account.
-        const record = { ...data };
-        const res = user
-          ? await updateRecord('profiles', user.id, record)
-          : await insertRecord('profiles', { ...record, id: crypto.randomUUID() });
-
-        if (res.error) {
-          showToast(res.error.message || 'Error saving user', 'danger');
-          return;
+        if (user) {
+          // Edit: only update profile fields (full_name, role, is_active)
+          const { password: _pw, email: _email, ...profileData } = data;
+          const res = await updateRecord('profiles', user.id, profileData);
+          if (res.error) { showToast(res.error.message || 'Error updating user', 'danger'); return; }
+          showToast('User updated', 'success');
+        } else {
+          // Create: route through Edge Function → creates auth.users + triggers profile row
+          const res = await callManageUser({
+            action: 'create',
+            email: data.email,
+            password: data.password,
+            full_name: data.full_name,
+            role: data.role,
+          });
+          if (res.error) { showToast(res.error.message || 'Error creating user', 'danger'); return; }
+          showToast('User created and can now log in', 'success');
         }
-        showToast(user ? 'User updated' : 'Profile created. The user must also exist in Supabase Auth to sign in.', 'success');
         close();
         renderUsers(container);
       }
@@ -297,9 +334,10 @@ async function renderUsers(container) {
     const user = users.find(u => String(u.id) === String(id));
     confirmDialog('Delete User', `Are you sure you want to delete "${user?.full_name || id}"?`, async () => {
       if (fromDb) {
-        const { error } = await deleteRecord('profiles', id);
-        if (error) {
-          showToast(error.message || 'Error deleting user', 'danger');
+        // Route through Edge Function → deletes auth.users (profile cascades automatically)
+        const res = await callManageUser({ action: 'delete', user_id: id });
+        if (res.error) {
+          showToast(res.error.message || 'Error deleting user', 'danger');
           return;
         }
       } else {
@@ -313,6 +351,7 @@ async function renderUsers(container) {
 
   document.getElementById('add-user-btn')?.addEventListener('click', () => openUserForm());
 }
+
 
 // ------------------------------------------------------------------
 // Classes, Subjects, Academic Years — generic CRUD

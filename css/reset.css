@@ -8,3 +8,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 input, textarea, select { font-family: inherit; font-size: inherit; }
 h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); line-height: 1.2; }
 .container { width: 100%; max-width: var(--container-max); margin: 0 auto; padding: 0 20px; }
+
+/* ===== FOCUS VISIBLE (keyboard accessibility) ===== */
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--color-blue, #3D8EFF); outline-offset: 3px; border-radius: 4px; }

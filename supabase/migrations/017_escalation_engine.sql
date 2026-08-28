@@ -199,9 +199,12 @@ CREATE POLICY "Recipients can resolve escalations sent to them"
 -- ------------------------------------------------------------------
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
-    DELETE FROM cron.job WHERE jobname = 'process-overdue-daily';
-    IF NOT EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'process-overdue-daily') THEN
-      PERFORM cron.schedule('process-overdue-daily', '0 0 * * *', $$SELECT process_overdue_items()$$);
-    END IF;
+    -- Safely attempt to unschedule, ignoring the error if the job does not exist yet
+    BEGIN
+      PERFORM cron.unschedule('process-overdue-daily');
+    EXCEPTION WHEN OTHERS THEN
+      NULL;
+    END;
+    PERFORM cron.schedule('process-overdue-daily', '0 0 * * *', 'SELECT process_overdue_items()');
   END IF;
 END $$;

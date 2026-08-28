@@ -1,16 +1,5 @@
--- =============================================
--- REPAIR MIGRATION (safe to re-run)
--- Fixes the live project without destroying data:
---   1. Ensures the 'head_teacher' role exists in the user_role enum.
---   2. Ensures head_teachers / head_teacher_teachers tables exist.
---   3. Recreates attendance + attendance_records RLS policies that
---      previously caused "infinite recursion detected in policy".
---   4. Recreates process_overdue_items() against the head_teacher schema.
--- =============================================
+-- Repair migration: Fix roles, tables, attendance RLS recursion, and overdue processing.
 
--- ------------------------------------------------------------------
--- 1) Ensure the 'head_teacher' role value exists
--- ------------------------------------------------------------------
 ALTER TYPE user_role ADD VALUE IF NOT EXISTS 'head_teacher';
 
 -- ------------------------------------------------------------------
@@ -78,11 +67,16 @@ $$ LANGUAGE sql SECURITY DEFINER STABLE;
 --    The old policies cross-referenced each other's tables, causing
 --    Postgres to abort with "infinite recursion detected in policy".
 -- ------------------------------------------------------------------
-DROP POLICY IF EXISTS "Parents can read attendance for linked children" ON attendance;
-DROP POLICY IF EXISTS "Teachers can manage records for their classes" ON attendance_records;
-DROP POLICY IF EXISTS "Supervisors can read attendance for assigned classes" ON attendance;
 DROP POLICY IF EXISTS "Admin full access on attendance" ON attendance;
+DROP POLICY IF EXISTS "Teachers can manage attendance for their classes" ON attendance;
+DROP POLICY IF EXISTS "Head teachers can read attendance for assigned classes" ON attendance;
+DROP POLICY IF EXISTS "Parents can read attendance for linked children" ON attendance;
+DROP POLICY IF EXISTS "Supervisors can read attendance for assigned classes" ON attendance;
+
 DROP POLICY IF EXISTS "Admin full access on attendance_records" ON attendance_records;
+DROP POLICY IF EXISTS "Teachers can manage records for their classes" ON attendance_records;
+DROP POLICY IF EXISTS "Parents can read records for linked children" ON attendance_records;
+DROP POLICY IF EXISTS "Head teachers can read records for assigned classes" ON attendance_records;
 
 CREATE POLICY "Admin full access on attendance" ON attendance
   FOR ALL USING (get_user_role() = 'admin');
@@ -113,6 +107,12 @@ CREATE POLICY "Teachers can manage records for their classes" ON attendance_reco
 CREATE POLICY "Parents can read records for linked children" ON attendance_records
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM parent_students ps WHERE ps.parent_id = get_parent_id() AND ps.student_id = attendance_records.student_id)
+  );
+
+CREATE POLICY "Head teachers can read records for assigned classes" ON attendance_records
+  FOR SELECT USING (
+    get_user_role() IN ('head_teacher', 'supervisor') AND
+    EXISTS (SELECT 1 FROM attendance a WHERE a.id = attendance_records.attendance_id)
   );
 
 -- ------------------------------------------------------------------

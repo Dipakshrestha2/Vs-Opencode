@@ -97,7 +97,7 @@ export function redirectByRole(role) {
     teacher: '#/teacher/dashboard',
     parent: '#/parent/dashboard'
   };
-  return routes[role] || 'login.html';
+  return routes[role] || '';
 }
 
 export function roleLabel(role) {

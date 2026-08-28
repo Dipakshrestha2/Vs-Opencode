@@ -4,9 +4,9 @@
 //   Publishable key format:  sb_publishable_xxxxxxxxxxxxx
 //   Legacy anon key format:  eyJhbGciOiJIUzI1NiIs...
 // =============================================
-const SUPABASE_URL = 'https://ugngjqszxobbhrdxlyso.supabase.co';
+const SUPABASE_URL = 'https://kusnddqigbqphyqtqrrh.supabase.co';
 
-const SUPABASE_ANON_KEY = 'sb_publishable_oSI-qrM2TWCzvLdrXVtUyw_QdJgpo0E';
+const SUPABASE_ANON_KEY = 'sb_publishable_H01k4qP0y2g2X_3R3kK_6Q_i-QeC-0M';
 
 const SDK_WAIT_TIMEOUT = 8000;
 
@@ -74,7 +74,7 @@ if (typeof window !== 'undefined') {
         console.error('❌ Supabase Connection Failed:', error.message);
         console.error(
           'Please double-check SUPABASE_URL and SUPABASE_ANON_KEY in js/config.js. ' +
-            'The key may be a publishable key (sb_publishable_...) or a legacy anon key (eyJ...).'
+          'The key may be a publishable key (sb_publishable_...) or a legacy anon key (eyJ...).'
         );
       } else {
         console.log('✅ Supabase is CONNECTED successfully!');

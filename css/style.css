@@ -416,6 +416,25 @@
   backdrop-filter: blur(8px);
 }
 .lightbox.hidden { display: none; }
+.lightbox-close {
+  position: absolute; top: 20px; right: 24px;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,255,255,0.15); color: white;
+  font-size: 1.3rem; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+.lightbox-close:hover { background: rgba(255,255,255,0.3); }
+.lightbox-content {
+  max-width: 90vw; max-height: 90vh;
+  border-radius: 16px; overflow: hidden; cursor: default;
+  display: flex; align-items: center; justify-content: center;
+}
+.lightbox-content .gallery-placeholder {
+  width: min(80vw, 520px); height: min(60vh, 400px);
+  border-radius: 16px;
+}
 
 /* ========== FORM UTILITIES ========== */
 .dynamic-form .form-group { margin-bottom: 16px; }

@@ -67,14 +67,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Gallery lightbox
   const lightbox = document.getElementById('lightbox');
-  galleryItems.forEach(item => {
-    item.addEventListener('click', () => {
-      if (lightbox) {
-        lightbox.innerHTML = item.innerHTML;
-        lightbox.classList.remove('hidden');
-        lightbox.addEventListener('click', () => lightbox.classList.add('hidden'), { once: true });
+
+  function openLightbox(content) {
+    if (!lightbox) return;
+    lightbox.setAttribute('role', 'dialog');
+    lightbox.setAttribute('aria-modal', 'true');
+    lightbox.setAttribute('aria-label', 'Gallery image');
+    lightbox.innerHTML = `
+      <button class="lightbox-close" aria-label="Close lightbox">✕</button>
+      <div class="lightbox-content">${content}</div>`;
+    lightbox.classList.remove('hidden');
+    // Focus the close button for keyboard users
+    lightbox.querySelector('.lightbox-close')?.focus();
+    // Close on backdrop click (not on content)
+    lightbox.addEventListener('click', function onBgClick(e) {
+      if (e.target === lightbox || e.target.classList.contains('lightbox-close')) {
+        closeLightbox();
+        lightbox.removeEventListener('click', onBgClick);
       }
     });
+  }
+
+  function closeLightbox() {
+    if (!lightbox) return;
+    lightbox.classList.add('hidden');
+    lightbox.innerHTML = '';
+    lightbox.removeAttribute('role');
+    lightbox.removeAttribute('aria-modal');
+    lightbox.removeAttribute('aria-label');
+  }
+
+  // Escape key to close
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !lightbox?.classList.contains('hidden')) {
+      closeLightbox();
+    }
+  });
+
+  galleryItems.forEach(item => {
+    item.addEventListener('click', () => openLightbox(item.innerHTML));
   });
 
   // Contact form

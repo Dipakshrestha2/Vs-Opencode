@@ -6,7 +6,7 @@
 // =============================================
 const SUPABASE_URL = 'https://kusnddqigbqphyqtqrrh.supabase.co';
 
-const SUPABASE_ANON_KEY = 'sb_publishable_H01k4qP0y2g2X_3R3kK_6Q_i-QeC-0M';
+const SUPABASE_ANON_KEY = 'sb_publishable_Uppx-u_FywXQXr4OsQ_aqA_Nu0AJwbE';
 
 const SDK_WAIT_TIMEOUT = 8000;
 
